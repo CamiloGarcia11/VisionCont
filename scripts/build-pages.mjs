@@ -60,7 +60,13 @@ if (existsSync(handlerPath)) {
   if (!content.includes("createRequire")) {
     const shim =
       'import { createRequire as __cfCreateRequire } from "node:module";\n' +
-      'const require = __cfCreateRequire(import.meta.url || "file:///worker.js");\n';
+      'const __cfBaseRequire = __cfCreateRequire(import.meta.url || "file:///worker.js");\n' +
+      "const require = (id) => {\n" +
+      '  if (id === "node:inspector" || id === "inspector") {\n' +
+      "    return { url: () => undefined, open: () => {}, close: () => {} };\n" +
+      "  }\n" +
+      "  return __cfBaseRequire(id);\n" +
+      "};\n";
     writeFileSync(handlerPath, shim + content, "utf8");
   }
 }
