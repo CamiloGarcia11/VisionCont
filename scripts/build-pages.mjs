@@ -70,7 +70,7 @@ if (existsSync(handlerPath)) {
       "    return __cfModuleCache.get(id);\n" +
       "  }\n" +
       "  const mod = __cfBaseRequire(id);\n" +
-      '  if (mod && typeof mod === "object" && Object.isFrozen(mod)) {\n' +
+      '  if (mod && typeof mod === "object" && (Object.isFrozen(mod) || mod[Symbol.toStringTag] === "Module" || Object.prototype.toString.call(mod) === "[object Module]")) {\n' +
       "    const mutable = { ...mod };\n" +
       "    __cfModuleCache.set(id, mutable);\n" +
       "    return mutable;\n" +
