@@ -1,4 +1,11 @@
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -40,5 +47,39 @@ for (const dir of runtimeDirs) {
     cpSync(src, join(workerOutDir, dir), { recursive: true });
   }
 }
+
+// 3. Ensure `require` is defined via node:module createRequire inside server handler.mjs
+const handlerPath = join(
+  workerOutDir,
+  "server-functions",
+  "default",
+  "handler.mjs"
+);
+if (existsSync(handlerPath)) {
+  const content = readFileSync(handlerPath, "utf8");
+  if (!content.includes("createRequire")) {
+    const shim =
+      'import { createRequire as __cfCreateRequire } from "node:module";\n' +
+      "const require = __cfCreateRequire(import.meta.url);\n";
+    writeFileSync(handlerPath, shim + content, "utf8");
+  }
+}
+
+// 4. Generate _routes.json so static assets bypass _worker.js
+const routesJson = {
+  version: 1,
+  include: ["/*"],
+  exclude: [
+    "/_next/static/*",
+    "/favicon.ico",
+    "/icon.svg",
+    "/apple-touch-icon.png",
+  ],
+};
+writeFileSync(
+  join(pagesDistDir, "_routes.json"),
+  JSON.stringify(routesJson, null, 2),
+  "utf8"
+);
 
 console.log("Cloudflare Pages output prepared in .pages-dist/");
