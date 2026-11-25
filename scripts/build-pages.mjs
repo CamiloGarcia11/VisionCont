@@ -61,11 +61,21 @@ if (existsSync(handlerPath)) {
     const shim =
       'import { createRequire as __cfCreateRequire } from "node:module";\n' +
       'const __cfBaseRequire = __cfCreateRequire(import.meta.url || "file:///worker.js");\n' +
+      "const __cfModuleCache = new Map();\n" +
       "const require = (id) => {\n" +
       '  if (id === "node:inspector" || id === "inspector") {\n' +
       "    return { url: () => undefined, open: () => {}, close: () => {} };\n" +
       "  }\n" +
-      "  return __cfBaseRequire(id);\n" +
+      "  if (__cfModuleCache.has(id)) {\n" +
+      "    return __cfModuleCache.get(id);\n" +
+      "  }\n" +
+      "  const mod = __cfBaseRequire(id);\n" +
+      '  if (mod && typeof mod === "object" && Object.isFrozen(mod)) {\n' +
+      "    const mutable = { ...mod };\n" +
+      "    __cfModuleCache.set(id, mutable);\n" +
+      "    return mutable;\n" +
+      "  }\n" +
+      "  return mod;\n" +
       "};\n";
     writeFileSync(handlerPath, shim + content, "utf8");
   }
