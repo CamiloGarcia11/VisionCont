@@ -16,6 +16,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { formatCurrency, formatDateShort } from "@/lib/format";
 
 interface SearchResultPayload {
@@ -162,13 +163,13 @@ export function AppShell({
             }}
             className={`flex min-h-[44px] items-center gap-3 rounded-l-lg px-3.5 py-2.5 text-sm transition-all duration-200 ${
               isActive
-                ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600 font-semibold"
-                : "text-slate-600 hover:bg-blue-50/50 hover:text-blue-700 font-medium"
+                ? "bg-[#D5DD54]/28 text-[#141534] border-r-2 border-[#141534] font-semibold"
+                : "text-[#585A74] hover:bg-[#F4F2EB] hover:text-[#141534] font-medium"
             }`}
           >
             <Icon
               className={`h-4 w-4 shrink-0 ${
-                isActive ? "text-blue-600" : "text-slate-400"
+                isActive ? "text-[#141534]" : "text-[#585A74]"
               }`}
             />
             <span className="truncate">{item.label}</span>
@@ -182,18 +183,8 @@ export function AppShell({
     <div className="min-h-dvh w-full max-w-full overflow-x-hidden flex flex-col bg-[var(--bg-app)] text-[var(--text-primary)]">
       {/* Sidebar fijo en desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white lg:flex">
-        <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white shadow-sm">
-            GG
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#0F172A]">
-              Gestión Gerencial
-            </p>
-            <p className="truncate text-[11px] font-medium text-blue-600">
-              Control Ejecutivo
-            </p>
-          </div>
+        <div className="flex h-16 items-center gap-3 border-b border-[var(--border-subtle)] px-5">
+          <BrandLogo />
         </div>
 
         {renderSidebarLinks()}
@@ -251,15 +242,8 @@ export function AppShell({
             mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-                GG
-              </div>
-              <span className="truncate text-sm font-semibold text-[#0F172A]">
-                Gestión Gerencial
-              </span>
-            </div>
+          <div className="flex h-16 items-center justify-between border-b border-[var(--border-subtle)] px-4">
+            <BrandLogo compact />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
