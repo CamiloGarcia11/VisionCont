@@ -60,7 +60,7 @@ if (existsSync(handlerPath)) {
   if (!content.includes("createRequire")) {
     const shim =
       'import { createRequire as __cfCreateRequire } from "node:module";\n' +
-      "const require = __cfCreateRequire(import.meta.url);\n";
+      'const require = __cfCreateRequire(import.meta.url || "file:///worker.js");\n';
     writeFileSync(handlerPath, shim + content, "utf8");
   }
 }
