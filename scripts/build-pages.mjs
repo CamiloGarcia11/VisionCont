@@ -70,6 +70,13 @@ if (existsSync(handlerPath)) {
       "    return __cfModuleCache.get(id);\n" +
       "  }\n" +
       "  const mod = __cfBaseRequire(id);\n" +
+      '  if (id === "module" || id === "node:module") {\n' +
+      "    const mutable = { ...mod };\n" +
+      "    mutable._resolveFilename = mutable._resolveFilename || ((req) => req);\n" +
+      "    mutable.prototype = mutable.prototype || { require: __cfBaseRequire };\n" +
+      "    __cfModuleCache.set(id, mutable);\n" +
+      "    return mutable;\n" +
+      "  }\n" +
       '  if (mod && typeof mod === "object" && (Object.isFrozen(mod) || mod[Symbol.toStringTag] === "Module" || Object.prototype.toString.call(mod) === "[object Module]")) {\n' +
       "    const mutable = { ...mod };\n" +
       "    __cfModuleCache.set(id, mutable);\n" +
