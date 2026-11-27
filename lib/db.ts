@@ -22,6 +22,7 @@ export function getSql(): NeonQueryFunction<false, false> {
 
 /**
  * Registra una entrada en activity_logs sin interrumpir la operación principal si falla.
+ * Mantiene un máximo de 50 registros recientes por usuario para evitar crecimiento innecesario de storage.
  */
 export async function logActivity(params: {
   userId: string;
@@ -41,6 +42,18 @@ export async function logActivity(params: {
         ${params.targetId ?? null},
         ${params.summary}
       )
+    `;
+
+    await sql`
+      DELETE FROM activity_logs
+      WHERE user_id = ${params.userId}
+        AND id NOT IN (
+          SELECT id
+          FROM activity_logs
+          WHERE user_id = ${params.userId}
+          ORDER BY created_at DESC
+          LIMIT 50
+        )
     `;
   } catch (err) {
     console.error("[activity_logs] Error registrando actividad:", err);

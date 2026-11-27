@@ -173,12 +173,19 @@ export function normalizeContactRow(raw: Record<string, unknown>): ContactRow {
   };
 }
 
+const lastOverdueSyncByUser = new Map<string, string>();
+
 /**
  * Marca automáticamente como vencidos los pagos con status = 'pendiente' y due_date < hoy.
+ * Se ejecuta como máximo una vez al día por usuario en memoria para evitar escrituras WAL innecesarias.
  */
 export async function syncOverduePayments(userId: string): Promise<void> {
-  const sql = getSql();
   const today = getTodayIsoDate(DEFAULT_TIMEZONE);
+  if (lastOverdueSyncByUser.get(userId) === today) {
+    return;
+  }
+
+  const sql = getSql();
   await sql`
     UPDATE payments
     SET status = 'vencido', updated_at = NOW()
@@ -186,6 +193,7 @@ export async function syncOverduePayments(userId: string): Promise<void> {
       AND status = 'pendiente'
       AND due_date < ${today}::date
   `;
+  lastOverdueSyncByUser.set(userId, today);
 }
 
 export async function getEntitiesList(userId: string): Promise<EntityRow[]> {
